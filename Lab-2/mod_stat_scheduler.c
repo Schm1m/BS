@@ -1,9 +1,9 @@
 #include <linux/init.h>
+#include <linux/jiffies.h>
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <linux/printk.h>
 #include <linux/workqueue.h>
-#include <linux/jiffies.h>
 
 unsigned int delay_ms = 2000;
 // default delay if delay is not defined on module loadup
@@ -29,7 +29,8 @@ void kmod_work_handler(struct work_struct *w) {
         printk(KERN_INFO
                "record nr. %d,\n\t time: %u,\n\t max: %u,\n\t backtrace[0]: "
                "%pX \n",
-               i + 1, jiffies_to_msecs(this_record[i].time), jiffies_to_msecs(this_record[i].max),
+               i + 1, jiffies_to_msecs(this_record[i].time),
+               jiffies_to_msecs(this_record[i].max),
                (void *)this_record[i].backtrace[0]);
     }
     printk(KERN_INFO "\n");
