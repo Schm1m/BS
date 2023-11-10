@@ -26,7 +26,8 @@ void kmod_work_handler(struct work_struct *w) {
     for (int i = 0; i < recLength; i++) {
         // print count, time, max and element 0 of backtrace for each record
         printk(KERN_INFO
-               "record nr. %d,\t time: %lu,\t\t\t max: %lu,\t\t\t backtrace[0]: %pX \n",
+               "record nr. %d,\n\t time: %lu,\n\t max: %lu,\n\t backtrace[0]: "
+               "%pX \n",
                i + 1, this_record[i].time, this_record[i].max,
                (void *)this_record[i].backtrace[0]);
     }
