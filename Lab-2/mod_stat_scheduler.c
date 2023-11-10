@@ -13,7 +13,7 @@ struct workqueue_struct *wq = 0;
 DECLARE_DELAYED_WORK(kmod_work, kmod_work_handler);
 // setup workqueue
 
-module_param(delay_ms, uint, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+module_param(delay_ms, uint, 0);
 // module parameter for delay
 MODULE_PARM_DESC(delay_ms, "Delay between statistics output");
 // parameter description
