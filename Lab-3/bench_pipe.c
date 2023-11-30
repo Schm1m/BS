@@ -8,6 +8,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "bench_utils.h"
@@ -50,6 +51,8 @@ int main(void) {
     ticks = malloc(MEASUREMENTS * sizeof(int));
     if (NULL == ticks) ERROR("malloc", ENOMEM);
     memset(ticks, 0, MEASUREMENTS * sizeof(int));
+
+    time_t t_start = time(NULL);
 
     for (int i = 0; i < num_tests; i++) {
         int test_size = get_bitsize(i);
@@ -113,4 +116,7 @@ int main(void) {
             MEASUREMENTS, test_size,
             ((double)test_size * MEASUREMENTS) / (1024.0 * 1024.0 * time_diff));
     }
+    time_t t_end = time(NULL);
+    double diff = difftime(t_end, t_start);
+    printf("Benchmark took %lf minutes\n", diff/60);
 }
