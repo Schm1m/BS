@@ -24,13 +24,17 @@ int get_bitsize(int test_iteration) {
 }
 
 int main(void) {
-    const int num_tests = 10;
+    const int num_tests = 10;  // 10th test will be 16MB
     int test_pipe[2];
 
+    // create a pipe while disabling blocking, so data does not need to be read
+    // from the pipe to add new data
     pipe2(test_pipe, O_NONBLOCK);
-    fcntl(test_pipe[0], F_SETPIPE_SZ, 16777216);
+
+    // increase pipe buffer to 16MB
     fcntl(test_pipe[1], F_SETPIPE_SZ, 16777216);
 
+    // check if run with higher privileges. needed for increased pipe buffer
     long test = (long)fcntl(test_pipe[0], F_GETPIPE_SZ);
     if (test < 16777216) {
         printf("programm needs to be run with higher privileges (sudo)\n");
@@ -40,6 +44,8 @@ int main(void) {
         return -1;
     }
 
+    // copied from bench_mmap.c
+    // allocate and initiate space in memory to store measurements
     int* ticks;
     ticks = malloc(MEASUREMENTS * sizeof(int));
     if (NULL == ticks) ERROR("malloc", ENOMEM);
@@ -54,28 +60,38 @@ int main(void) {
         struct timeval tv_stop;
         double time_diff;
 
-        int dump;
-
         gettimeofday(&tv_start, NULL);
 
         for (int j = 0; j < MEASUREMENTS; j++) {
             unsigned long long start, stop;
-            char* testdata = malloc(test_size * sizeof(char));
 
+            // create array, allocate memory and fill with 'a' to create
+            // arbitrary data to test with
+            char* testdata = malloc(test_size * sizeof(char));
             for (int j = 0; j < test_size; j++) {
                 testdata[j] = 'a';
             }
+
+            // start single measurement
             start = getrdtsc();
 
+            // write array to pipe
             write(test_pipe[1], testdata, sizeof(testdata));
 
+            // stop measurement
             stop = getrdtsc();
+
+            // free data array. otherwise huge memory leak
             free(testdata);
+
+            // save measurement
             ticks[j] = stop - start;
         }
         gettimeofday(&tv_stop, NULL);
 
         // copied from bench_mmap.c
+        // tbh no idea yet what it does, but it works. will update comments if i
+        // understood it
         for (int j = 0; j < MEASUREMENTS; j++) {
             if (ticks_min > ticks[j]) ticks_min = ticks[j];
             if (ticks_max < ticks[j]) ticks_max = ticks[j];
