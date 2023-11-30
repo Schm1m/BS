@@ -25,6 +25,7 @@ int get_bitsize(int test_iteration) {
 }
 
 int main(void) {
+    long long full_data = 0;
     const int num_tests = 10;  // 10th test will be 16MB
     int test_pipe[2];
 
@@ -80,6 +81,7 @@ int main(void) {
 
             // write array to pipe
             write(test_pipe[1], testdata, sizeof(testdata));
+            full_data += test_size;
 
             // stop measurement
             stop = getrdtsc();
@@ -119,4 +121,5 @@ int main(void) {
     time_t t_end = time(NULL);
     double diff = difftime(t_end, t_start);
     printf("Benchmark took %lf minutes\n", diff/60);
+    printf("Full data written on this Benchmark: %0.3lfGB\n", full_data/1000.0/1000.0/1000.0);
 }
