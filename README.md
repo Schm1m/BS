@@ -1,3 +1,4 @@
-# BS-Lab
+#  Labor Betriebssysteme 
 
-# hab kein plan von markdown, kommt später
+> [!NOTE]
+> Dieses Repository enthält meine Lösungen für das BS Labor. Diese sind in den jeweiligen Unterordnern zu finden.
