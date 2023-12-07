@@ -12,7 +12,9 @@
 #include <unistd.h>
 
 #include "bench_utils.h"
-#define SLEEP_TIME 1
+// define the value below to verify all data arrays used for transfering
+// arbitrary data
+// #define VALIDATE_TESTDATA
 
 // (0-based) will return the number of bytes to test with in each iteration.
 // in every iteration the number should quadruple
@@ -29,9 +31,31 @@ int main(void) {
     const int num_tests = 10;  // 10th test will be 16MB
     int test_pipe[2];
 
+    char* tests[num_tests];
+    for (int i = 0; i < num_tests; i++) {
+        tests[i] = malloc(get_bitsize(i) * sizeof(char));
+        for (int j = 0; j < get_bitsize(i); j++) {
+            tests[i][j] = 'a';
+        }
+    }
+#ifdef VALIDATE_TESTDATA
+    // validation for data arrays
+    for (int i = 0; i < num_tests; i++) {
+        if (tests[0][0] != 'a') {
+            printf("fatal error with filling arrays. aborting\n");
+            exit(-1);
+        }
+        for (int j = 0; j <= get_bitsize(i); j++) {
+            if (tests[i][j] != 'a') {
+                printf("Array %d filled until pos. %d\n", i + 1, j);
+            }
+        }
+    }
+#endif
+
     // create a pipe while disabling blocking, so data does not need to be read
     // from the pipe to add new data
-    pipe2(test_pipe, O_NONBLOCK);
+    pipe(test_pipe);
 
     // increase pipe buffer to 16MB
     fcntl(test_pipe[1], F_SETPIPE_SZ, 16777216);
@@ -53,8 +77,6 @@ int main(void) {
     if (NULL == ticks) ERROR("malloc", ENOMEM);
     memset(ticks, 0, MEASUREMENTS * sizeof(int));
 
-    time_t t_start = time(NULL);
-
     for (int i = 0; i < num_tests; i++) {
         int test_size = get_bitsize(i);
         int ticks_min = INT_MAX;
@@ -69,28 +91,26 @@ int main(void) {
         for (int j = 0; j < MEASUREMENTS; j++) {
             unsigned long long start, stop;
 
+            char* buffer = malloc(16777216 * sizeof(char) * 2);
+
             // create array, allocate memory and fill with 'a' to create
             // arbitrary data to test with
-            char* testdata = malloc(test_size * sizeof(char));
-            for (int j = 0; j < test_size; j++) {
-                testdata[j] = 'a';
-            }
 
             // start single measurement
             start = getrdtsc();
 
             // write array to pipe
-            write(test_pipe[1], testdata, sizeof(testdata));
+            write(test_pipe[1], tests[i], get_bitsize(i) * sizeof(char));
+            read(test_pipe[0], buffer, get_bitsize(i) * sizeof(char) * 2);
+
             full_data += test_size;
 
             // stop measurement
             stop = getrdtsc();
 
-            // free data array. otherwise huge memory leak
-            free(testdata);
-
             // save measurement
             ticks[j] = stop - start;
+            free(buffer);
         }
         gettimeofday(&tv_stop, NULL);
 
@@ -118,8 +138,6 @@ int main(void) {
             MEASUREMENTS, test_size,
             ((double)test_size * MEASUREMENTS) / (1024.0 * 1024.0 * time_diff));
     }
-    time_t t_end = time(NULL);
-    double diff = difftime(t_end, t_start);
-    printf("Benchmark took %lf minutes\n", diff/60);
-    printf("Full data written on this Benchmark: %0.3lfGB\n", full_data/1000.0/1000.0/1000.0);
+    printf("Full data written on this Benchmark: %0.3lfGiB\n",
+           full_data / 1024.0 / 1024.0 / 1024.0);
 }
