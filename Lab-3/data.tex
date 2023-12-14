@@ -29,13 +29,15 @@
                 height=0.7\pdfpageheight,
                 xlabel=Buffer-size,
                 ylabel=Data-rate,
-                xticklabels={0, 32 B, 64 B, 128 B, 256 B, 512 B, 1 KiB, 2 KiB, 4 KiB, 8 KiB, 16 KiB, 32 KiB, 64 KiB, 128 KiB, 265 KiB, 512 KiB, 1 MiB, 2 MiB, 4 MiB, 8 MiB, 16 MiB},
+                xticklabels={0, 64 B, 128 B, 256 B, 512 B, 1 KiB, 2 KiB, 4 KiB, 8 KiB, 16 KiB, 32 KiB, 64 KiB, 128 KiB, 265 KiB, 512 KiB, 1 MiB, 2 MiB, 4 MiB, 8 MiB, 16 MiB},
                 yticklabels={8 MiB/s, 16 MiB/s, 32 MiB/s, 64 MiB/s, 128 MiB/s, 256 MiB/s, 512 MiB/s, 1 GiB/s, 2 GiB/s, 4 GiB/s, 8 GiB/s, 16 GiB/s},
                 x tick label style={rotate=45, anchor=east, font=\small},
                 ymin=8,
+                xmin=32,
+                xmax=33554432,
                 ymajorgrids=true,
                 major grid style={line width=1.5pt},
-                bar width=7pt,
+                bar width=8pt,
                 title={All tests, unmodified, 100k measurements}
             ]
 
