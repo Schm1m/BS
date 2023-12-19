@@ -93,9 +93,6 @@ int main(void) {
 
             char* buffer = malloc(16777216 * sizeof(char) * 2);
 
-            // create array, allocate memory and fill with 'a' to create
-            // arbitrary data to test with
-
             // start single measurement
             start = getrdtsc();
 
@@ -133,7 +130,7 @@ int main(void) {
         // all benchmarks
         printf(
             "time: min:%d max:%d Ticks Avg without min/max:%f Ticks "
-            "(for %d measurements) for %d Bytes (%.2f MB/s)\n",
+            "(for %d measurements) for %d Bytes (%.2f MiB/s)\n",
             ticks_min, ticks_max, (double)ticks_all / (MEASUREMENTS - 2.0),
             MEASUREMENTS, test_size,
             ((double)test_size * MEASUREMENTS) / (1024.0 * 1024.0 * time_diff));
